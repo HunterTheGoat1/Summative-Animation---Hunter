@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Collections.Generic;
 
 namespace Summative_Animation___Hunter
 {
@@ -14,11 +15,10 @@ namespace Summative_Animation___Hunter
         SpriteFont smallFont;
         SpriteFont bigFont;
         Texture2D background;
-        Texture2D bubble;
+        Texture2D bubbleTexture;
         Texture2D introBackground;
-        int bubbleOneY;
-        int bubbleTwoY;
-        int bubbleThreeY;
+        List<Rectangle> bubbleRects;
+        List<Vector2> bubbleSpeeds;
 
         enum Screen
         {
@@ -40,9 +40,22 @@ namespace Summative_Animation___Hunter
         {
             screen = Screen.Intro;
             ranGen = new Random();
-            bubbleOneY = ranGen.Next(0, 200);
-            bubbleTwoY = ranGen.Next(400, 600);
-            bubbleThreeY = ranGen.Next(200, 400);
+            bubbleSpeeds = new List<Vector2>();
+            bubbleRects = new List<Rectangle>();
+            int width;
+
+            for (int i = 0; i < 25; i++)
+            {
+                width = ranGen.Next(50, 101);
+                bubbleRects.Add(new Rectangle(ranGen.Next(_graphics.PreferredBackBufferWidth - width), 2 * ranGen.Next(_graphics.PreferredBackBufferHeight), width, width));
+                if (width< 60)
+                    bubbleSpeeds.Add(new Vector2(0, -2));
+                else if (width < 80)
+                    bubbleSpeeds.Add(new Vector2(0, -4));
+                else
+                    bubbleSpeeds.Add(new Vector2(0, -6));
+            }
+
             _graphics.PreferredBackBufferWidth = 800;
             _graphics.PreferredBackBufferHeight = 600;
             _graphics.ApplyChanges();
@@ -56,14 +69,14 @@ namespace Summative_Animation___Hunter
             smallFont = Content.Load<SpriteFont>("SmallFont");
             bigFont = Content.Load<SpriteFont>("BigFont");
             background = Content.Load<Texture2D>("background");
-            bubble = Content.Load<Texture2D>("bubble");
+            bubbleTexture = Content.Load<Texture2D>("bubble");
             introBackground = Content.Load<Texture2D>("introBack");
         }
 
         protected override void Update(GameTime gameTime)
         {
             _mouseState = Mouse.GetState();
-            this.Window.Title = $"Animation Summative | Hunter Wilson | {screen} | Mouse: X({_mouseState.X}), Y({_mouseState.Y})";
+            this.Window.Title = $"Animation Summative | Hunter Wilson | {screen}";
 
             if (screen == Screen.Intro)
             {
@@ -74,20 +87,17 @@ namespace Summative_Animation___Hunter
             {
                 if (Keyboard.GetState().IsKeyDown(Keys.D2))
                     screen = Screen.Outro;
-                bubbleOneY -= 5;
-                if (bubbleOneY < 0 - bubble.Height)
+                Rectangle temp;
+                for (int i = 0; i < bubbleRects.Count; i++)
                 {
-                    bubbleOneY = 600;
-                }
-                bubbleTwoY -= 5;
-                if (bubbleTwoY < 0 - bubble.Height)
-                {
-                    bubbleTwoY = 600;
-                }
-                bubbleThreeY -= 5;
-                if (bubbleThreeY < 0 - bubble.Height)
-                {
-                    bubbleThreeY = 600;
+                    temp = bubbleRects[i];                   
+                    temp.Y += (int)bubbleSpeeds[i].Y;
+                    if (temp.Bottom < 0)
+                    {
+                        temp.Y = ranGen.Next(_graphics.PreferredBackBufferHeight, _graphics.PreferredBackBufferHeight + 100);
+                        temp.X = ranGen.Next(_graphics.PreferredBackBufferWidth - temp.Width);
+                    }
+                    bubbleRects[i] = temp;
                 }
             }
             else if (screen == Screen.Outro)
@@ -116,9 +126,8 @@ namespace Summative_Animation___Hunter
             {
                 _spriteBatch.Draw(background, new Rectangle(0, 0, 800, 600), Color.White);
                 _spriteBatch.DrawString(smallFont, "Press 2 to leave.", new Vector2(0, 0), Color.White);
-                _spriteBatch.Draw(bubble, new Rectangle(0, bubbleOneY, 100, 100), Color.White);
-                _spriteBatch.Draw(bubble, new Rectangle(350, bubbleTwoY, 100, 100), Color.White);
-                _spriteBatch.Draw(bubble, new Rectangle(700, bubbleThreeY, 100, 100), Color.White);
+                foreach(Rectangle bubble in bubbleRects)
+                    _spriteBatch.Draw(bubbleTexture, bubble, Color.White);
             }
             else if (screen == Screen.Outro)
             {

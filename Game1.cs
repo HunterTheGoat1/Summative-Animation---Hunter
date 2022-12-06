@@ -53,7 +53,6 @@ namespace Summative_Animation___Hunter
 
         protected override void Initialize()
         {
-            this.Window.Title = $"Animation Summative | Hunter Wilson";
             screen = Screen.Intro;
             ranGen = new Random();
             bubbleSpeeds = new List<Vector2>();
@@ -110,6 +109,7 @@ namespace Summative_Animation___Hunter
         {
             _mouseState = Mouse.GetState();
 
+            this.Window.Title = $"Animation Summative | Hunter Wilson | {gameTime.TotalGameTime.TotalSeconds.ToString("0:00")}";
 
             if (screen == Screen.Intro)
             {
@@ -271,7 +271,7 @@ namespace Summative_Animation___Hunter
                 if (loadShark)
                     _spriteBatch.DrawString(smallFont, "Press 2 to leave.", new Vector2(10, 0), Color.White);
                 else
-                    _spriteBatch.DrawString(smallFont, "Press S to summon the shark.", new Vector2(0, 0), Color.White);
+                    _spriteBatch.DrawString(smallFont, "Press S to summon the shark.", new Vector2(10, 0), Color.White);
 
                 if (hasFishOne)
                     _spriteBatch.Draw(fishOneBone, fishOneRect, Color.White);
